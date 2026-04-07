@@ -1,0 +1,27 @@
+{
+  "name": "smartprep-ai",
+  "version": "1.0.0",
+  "description": "Personalized Study Planner - Smart study optimization with AI",
+  "main": "index.js",
+  "scripts": {
+    "install:all": "npm install && cd client && npm install && cd ../server && npm install",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "start": "cd server && npm start",
+    "test": "cd client && npm test && cd ../server && npm test"
+  },
+  "keywords": [
+    "study",
+    "planner",
+    "education",
+    "ai",
+    "productivity"
+  ],
+  "author": "SmartPrep AI Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
