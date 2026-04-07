@@ -1,0 +1,69 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongo:
+    image: mongo:7
+    container_name: smartprep-mongo-dev
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data-dev:/data/db
+    networks:
+      - smartprep-dev-network
+
+  # Backend Server (Development)
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: smartprep-backend-dev
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mongo
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongo:27017/smartprep-ai
+      - JWT_SECRET=development_jwt_secret_change_in_production
+      - CLIENT_URL=http://localhost:5173
+    networks:
+      - smartprep-dev-network
+    volumes:
+      - ./server:/app:cached
+      - /app/node_modules
+
+  # Frontend (Minimal Dockerfile with Vite Dev Server)
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: smartprep-frontend-dev
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:5000/api
+    networks:
+      - smartprep-dev-network
+    volumes:
+      - ./client:/app:cached
+      - /app/node_modules
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  smartprep-dev-network:
+    driver: bridge
+
+volumes:
+  mongo-data-dev:
